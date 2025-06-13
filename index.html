@@ -1,48 +1,221 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Prompt Generator</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Veo 3 Prompt Generator</title>
+  <script src='https://cdn.tailwindcss.com'></script> 
+  <style>
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #e2e8f0; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+    body.dark::-webkit-scrollbar-track { background: #2d3748; }
+    body.dark::-webkit-scrollbar-thumb { background: #64748b; }
+    body.dark::-webkit-scrollbar-thumb:hover { background: #818cf8; }
+
+    .pulse-animation {
+      animation: pulse-once 1.5s ease-out;
+    }
+
+    @keyframes pulse-once {
+      0% { transform: scale(1); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+      50% { transform: scale(1.05); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
+      100% { transform: scale(1); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none !important;
+      transform: none !important;
+      background-image: none !important;
+      background-color: #cbd5e0 !important;
+      color: #64748b !important;
+    }
+
+    body.dark button:disabled {
+      background-color: #4b5563 !important;
+      color: #9ca3af !important;
+    }
+
+    .toggle-buttons-container {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      z-index: 50;
+    }
+
+    @media (max-width: 767px) {
+      .container { padding: 1.5rem; }
+    }
+
+    #mobileMenuToggle {
+      border-radius: 9999px;
+      background-color: #3b82f6;
+      color: white;
+      padding: 0.5rem 1rem;
+      font-weight: bold;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    #mobileMenuToggle:hover {
+      background-color: #2563eb;
+    }
+
+    #mobileMenuToggle:active {
+      transform: scale(0.95);
+    }
+
+    #stackedMobileMenuContainer {
+      gap: 1rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+      pointer-events: none;
+    }
+
+    #stackedMobileMenuContainer.is-open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+  </style>
 </head>
-<body class="light">
-  <div class="container">
-    <header>
-      <h1>Veo 3 Prompt Generator</h1>
-      <div class="controls">
-        <button id="darkModeToggle">🌙 Mode Gelap</button>
-        <button id="langToggle">Bahasa →</button>
+<body class="bg-slate-100 text-gray-700 dark:bg-gray-900 dark:text-white min-h-screen">
+  <div class="container mx-auto px-4 py-6 relative">
+
+    <!-- Toggle Buttons -->
+    <div class="toggle-buttons-container hidden md:flex">
+      <button id="darkModeToggler" class="dark-mode-toggle btn-blue flex items-center gap-2 px-3 py-1 rounded-lg shadow hover:shadow-md transition">
+        <span class="dark-mode-icon">🌙</span> <span data-i18n-key="darkModeText">Dark Mode</span>
+      </button>
+      <button id="languageToggler" class="language-toggle btn-purple flex items-center gap-2 px-3 py-1 rounded-lg shadow hover:shadow-md transition">
+        <span class="language-icon">🌐</span> <span data-i18n-key="languageText">Language</span>
+      </button>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <div class="md:hidden fixed bottom-4 right-4 z-50">
+      <button id="mobileMenuToggle" class="flex items-center gap-2 px-4 py-2 rounded-full shadow-lg bg-indigo-600 hover:bg-indigo-700 text-white">
+        <svg id="mobileMenuIcon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        <span>Menu</span>
+      </button>
+    </div>
+
+    <!-- Mobile Menu Container -->
+    <div id="stackedMobileMenuContainer" class="fixed bottom-20 right-4 z-40 flex flex-col gap-2 hidden">
+      <button id="darkModeMobileToggler" class="dark-mode-toggle btn-blue flex items-center gap-2 px-4 py-2 rounded-lg shadow hover:shadow-md transition">
+        <span class="dark-mode-icon">🌙</span> <span data-i18n-key="darkModeText">Dark Mode</span>
+      </button>
+      <button id="languageMobileToggler" class="language-toggle btn-purple flex items-center gap-2 px-4 py-2 rounded-lg shadow hover:shadow-md transition">
+        <span class="language-icon">🌐</span> <span data-i18n-key="languageText">Language</span>
+      </button>
+    </div>
+
+    <!-- Main Content -->
+    <h1 class="text-4xl sm:text-5xl font-bold mb-6 text-center" data-i18n-key="mainTitle">Veo 3 Prompt Generator</h1>
+    <p class="text-lg mb-6 text-center" data-i18n-key="pageDescription">Craft detailed and effective prompts for Veo 3 with ease.</p>
+
+    <!-- Subject Inputs -->
+    <div class="mb-6">
+      <label class="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-gray-700 dark:text-gray-300 block" data-i18n-key="subjectLabel">1. Subjek/Karakter:</label>
+      <div id="subjectInputsContainer" class="space-y-3">
+        <div class="flex items-center gap-2">
+          <input class="flex-1 p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 transition duration-200 shadow-sm subject-input" placeholder="cth: Seorang ksatria pemberani" type="text" />
+          <button class="btn-red remove-btn px-2 py-1 rounded hover:bg-red-600 disabled:opacity-50" title="Remove" disabled>Hapus</button>
+        </div>
       </div>
-    </header>
+      <div class="mt-2 flex gap-2">
+        <button id="addSubjectBtn" class="btn-green px-3 py-1 rounded hover:bg-green-600" data-i18n-key="addSubject">Add Subject</button>
+        <button id="saveSubjectsBtn" class="btn-blue px-3 py-1 rounded hover:bg-blue-600" data-i18n-key="saveSubjects">Save Subjects</button>
+        <button id="loadSubjectsBtn" class="btn-purple px-3 py-1 rounded hover:bg-purple-600" data-i18n-key="loadSubjects">Load Subjects</button>
+        <button id="clearSubjectsBtn" class="btn-red px-3 py-1 rounded hover:bg-red-600" data-i18n-key="clearSubjects">Clear Subjects</button>
+      </div>
+    </div>
 
-    <main>
-      <form id="promptForm">
-        <label>1. Subject:</label>
-        <input type="text" id="subjectInput" placeholder="e.g., A brave knight" />
+    <!-- Form Fields -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="flex flex-col input-group">
+        <label class="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-gray-700 dark:text-gray-300" data-i18n-key="actionLabel">2. Aksi/Aktivitas:</label>
+        <input id="action" class="p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 transition duration-200 shadow-sm" placeholder="cth: melawan naga" type="text"/>
+      </div>
+      <div class="flex flex-col input-group">
+        <label class="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-gray-700 dark:text-gray-300" data-i18n-key="expressionLabel">3. Ekspresi/Emosi:</label>
+        <input id="expression" class="p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 transition duration-200 shadow-sm" placeholder="cth: bertekad dan fokus" type="text"/>
+      </div>
+      <div class="flex flex-col input-group">
+        <label class="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-gray-700 dark:text-gray-300" data-i18n-key="placeLabel">4. Tempat/Latar:</label>
+        <input id="place" class="p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 transition duration-200 shadow-sm" placeholder="cth: di dalam gua yang gelap" type="text"/>
+        <div class="mt-2 flex gap-2">
+          <button id="savePlaceBtn" class="btn-blue px-3 py-1 rounded hover:bg-blue-600" data-i18n-key="savePlace">Save Place</button>
+          <button id="loadPlaceBtn" class="btn-purple px-3 py-1 rounded hover:bg-purple-600" data-i18n-key="loadPlace">Load Place</button>
+          <button id="clearPlaceBtn" class="btn-red px-3 py-1 rounded hover:bg-red-600" data-i18n-key="clearPlace">Clear Place</button>
+        </div>
+      </div>
+      <div class="flex flex-col input-group">
+        <label class="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-gray-700 dark:text-gray-300" data-i18n-key="timeLabel">5. Waktu Hari/Periode:</label>
+        <select id="timeSelect" class="p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 transition duration-200 shadow-sm">
+          <option value="">-- Pilih Waktu --</option>
+        </select>
+      </div>
+      <div class="flex flex-col input-group">
+        <label class="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-gray-700 dark:text-gray-300" data-i18n-key="cameraMovementLabel">6. Gerakan Kamera:</label>
+        <select id="cameraMovementSelect" class="p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 transition duration-200 shadow-sm">
+          <option value="">-- Pilih Gerakan Kamera --</option>
+        </select>
+      </div>
+      <div class="flex flex-col input-group">
+        <label class="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-gray-700 dark:text-gray-300" data-i18n-key="lightingLabel">7. Pencahayaan:</label>
+        <select id="lightingSelect" class="p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 transition duration-200 shadow-sm">
+          <option value="">-- Pilih Pencahayaan --</option>
+        </select>
+      </div>
+      <div class="flex flex-col input-group">
+        <label class="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-gray-700 dark:text-gray-300" data-i18n-key="videoStyleLabel">8. Gaya Video/Genre:</label>
+        <select id="videoStyleSelect" class="p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 transition duration-200 shadow-sm">
+          <option value="">-- Pilih Gaya Video --</option>
+        </select>
+      </div>
+      <div class="flex flex-col input-group">
+        <label class="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-gray-700 dark:text-gray-300" data-i18n-key="videoAtmosphereLabel">9. Atmosfer Video:</label>
+        <select id="videoAtmosphereSelect" class="p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 transition duration-200 shadow-sm">
+          <option value="">-- Pilih Atmosfer --</option>
+        </select>
+      </div>
+    </div>
 
-        <label>2. Action:</label>
-        <input type="text" id="actionInput" placeholder="e.g., fighting a dragon" />
+    <!-- Additional Details -->
+    <div class="mb-6">
+      <label class="text-sm sm:text-base font-semibold mb-1 sm:mb-2 text-gray-700 dark:text-gray-300" data-i18n-key="additionalDetailsLabel">12. Detail Tambahan (opsional):</label>
+      <textarea id="additionalDetails" rows="4" class="w-full p-2 sm:p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 transition duration-200 shadow-sm" placeholder="Detail spesifik tambahan, elemen, atau instruksi lainnya..."></textarea>
+    </div>
 
-        <label>3. Expression:</label>
-        <input type="text" id="expressionInput" placeholder="e.g., determined and focused" />
+    <!-- Generate Button -->
+    <div class="flex justify-center mb-6">
+      <button id="generateBtn" class="btn-primary w-full sm:w-auto px-6 py-3 rounded-lg hover:shadow-lg hover:translate-y-[-2px] transition-all pulse-animation" data-i18n-key="generateButton">Generate Veo 3 Prompt</button>
+    </div>
 
-        <label>4. Place:</label>
-        <input type="text" id="placeInput" placeholder="e.g., inside a dark cave" />
+    <!-- Output Section -->
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-6">
+      <h2 class="text-xl font-bold mb-2" data-i18n-key="generatedPromptOutputLabel">Generated Prompt:</h2>
+      <pre id="output" class="whitespace-pre-wrap p-3 bg-gray-100 dark:bg-gray-700 rounded text-sm sm:text-base min-h-[100px] max-h-[400px] overflow-auto"></pre>
+      <div class="mt-2 flex gap-2">
+        <button id="copyBtn" class="btn-green px-4 py-2 rounded hover:bg-green-600" data-i18n-key="copyButton">📋 Salin Prompt</button>
+        <button id="randomizeBtn" class="btn-blue px-4 py-2 rounded hover:bg-blue-600" data-i18n-key="randomizeButton">🔄 Acak Prompt</button>
+        <button id="clearAllBtn" class="btn-red px-4 py-2 rounded hover:bg-red-600" data-i18n-key="clearAllInputsButton">🗑️ Hapus Semua</button>
+      </div>
+    </div>
 
-        <label>5. Additional Details:</label>
-        <textarea id="additionalDetails" rows="3" placeholder="Any extra specific details..."></textarea>
+    <!-- Message Box -->
+    <div id="messageBox" class="hidden fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-300"></div>
 
-        <button type="button" id="generateBtn">Generate Prompt</button>
-      </form>
-
-      <section id="output">
-        <h2>Generated Prompt</h2>
-        <pre id="generatedPrompt">Prompt will appear here...</pre>
-        <button id="copyBtn">📋 Copy Prompt</button>
-      </section>
-    </main>
   </div>
+
   <script src="app.js"></script>
 </body>
 </html>
