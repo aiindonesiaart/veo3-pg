@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Prompt Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="light">
+  <div class="container">
+    <header>
+      <h1>Veo 3 Prompt Generator</h1>
+      <div class="controls">
+        <button id="darkModeToggle">🌙 Mode Gelap</button>
+        <button id="langToggle">Bahasa →</button>
+      </div>
+    </header>
+
+    <main>
+      <form id="promptForm">
+        <label>1. Subject:</label>
+        <input type="text" id="subjectInput" placeholder="e.g., A brave knight" />
+
+        <label>2. Action:</label>
+        <input type="text" id="actionInput" placeholder="e.g., fighting a dragon" />
+
+        <label>3. Expression:</label>
+        <input type="text" id="expressionInput" placeholder="e.g., determined and focused" />
+
+        <label>4. Place:</label>
+        <input type="text" id="placeInput" placeholder="e.g., inside a dark cave" />
+
+        <label>5. Additional Details:</label>
+        <textarea id="additionalDetails" rows="3" placeholder="Any extra specific details..."></textarea>
+
+        <button type="button" id="generateBtn">Generate Prompt</button>
+      </form>
+
+      <section id="output">
+        <h2>Generated Prompt</h2>
+        <pre id="generatedPrompt">Prompt will appear here...</pre>
+        <button id="copyBtn">📋 Copy Prompt</button>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
